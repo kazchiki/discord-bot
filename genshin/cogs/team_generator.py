@@ -3,40 +3,43 @@ from discord.ext import commands
 from discord import app_commands
 import genshin
 import random
+from config.constants import CharacterNameMapping
 
 class TeamGeneratorCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-        # キャラクターの役割定義
         self.character_roles = {
             # メインDPS
             'dps': [
-                '胡桃', '甘雨', '雷電将軍', 'タルタリヤ', '荒瀧一斗', '神里綾華',
-                '宵宮', 'エウルア', '魈', 'ヌヴィレット', 'アルレッキーノ',
-                'リオセスリ', '放浪者', 'アルハイゼン', 'ナヴィア', 'クロリンデ',
-                'ディルック', 'クレー', 'セノ', 'ニィロウ', 'ティナリ', 'キニチ',
-                'ムアラニ', 'マーヴィカ'
+                'Hu Tao', 'Ganyu', 'Raiden Shogun', 'Tartaglia', 'Arataki Itto', 'Kamisato Ayaka',
+                'Yoimiya', 'Eula', 'Xiao', 'Neuvillette', 'Arlecchino','Sethos', 'Gaming',
+                'Wriothesley', 'Wanderer', 'Alhaitham', 'Navia', 'Clorinde', 'Yanfei', 'Ningguang',
+                'Diluc', 'Klee', 'Cyno', 'Tighnari', 'Kinich', 'Chasca',
+                'Mualani', 'Mavuika', 'Keqing', 'Lyney',
+                'Durin', 'Manekina', 'Manekin', 'Columbina', 'Skirk',
+                'Yumemizuki Mizuki', 'Neferiti', 'Flins'
             ],
             # サブDPS
             'sub_dps': [
-                '行秋', '香菱', 'フィッシュル', '北斗', 'ロサリア', '重雲',
-                '八重神子', '夜蘭', 'アルベド', 'フリーナ', 'エミリ',
-                '煙緋', '凝光', '辛炎', 'セトス', 'カチーナ'
+                'Xingqiu', 'Xiangling', 'Fischl', 'Beidou', 'Rosaria', 'Chongyun',
+                'Yae Miko', 'Yelan', 'Albedo', 'Furina', 'Emilie', 'Shikanoin Heizou',
+                'Xinyan', 'Kachina', 'Nilou', 'Chiori', 'Dori', 'Ifa', 'Noelle',
+                'Aino', 'Dahlia', 'Jahoda', 'Lauma', 'Ineffa',
             ],
             # サポート
             'support': [
-                'ベネット', 'ディオナ', 'ジン', 'ウェンティ', '楓原万葉', 'スクロース',
-                '鍾離', 'ナヒーダ', 'ファルザン', 'レイラ', '雲菫', 'ゴロー',
-                '九条裟羅', 'トーマ', 'キャンディス', 'カーヴェ', 'リネット',
-                'フレミネット', 'シャルロット', 'シュヴルーズ', 'ガミン', 'オロルン',
-                'ラン・ヤン', 'シュヴレーヌ', 'シグウィン', '白朮'
+                'Bennett', 'Venti', 'Kaedehara Kazuha', 'Sucrose',
+                'Zhongli', 'Nahida', 'Faruzan', 'Layla', 'Yun Jin', 'Gorou',
+                'Kujou Sara', 'Thoma', 'Candace', 'Kaveh', 'Lynette',
+                'Freminet', 'Charlotte', 'Chevreuse', 'Ororon', 'Mika',
+                'Lan Yan', 'Kirara', 'Xilonen', 'Citlali', 'Xianyun', 'Kuki Shinobu', 'Iansan'
             ],
             # ヒーラー
             'healer': [
-                'ベネット', 'ディオナ', 'ジン', 'ココミ', 'バーバラ',
-                'ノエル', '七七', '早柚', '瑶瑶', 'ミカ', '白朮',
-                'シャルロット', 'フリーナ', 'シグウィン'
+                'Diona', 'Jean', 'Sangonomiya Kokomi', 'Barbara',
+                'Qiqi', 'Sayu', 'Yaoyao', 'Baizhu',
+                'Charlotte', 'Sigewinne'
             ]
         }
 
@@ -44,6 +47,10 @@ class TeamGeneratorCog(commands.Cog):
         """データベースCogを取得"""
         return self.bot.get_cog('DatabaseCog')
 
+    def get_japanese_name(self, english_name: str):
+        """英語名を日本語名に変換"""
+        return CharacterNameMapping.NAMES.get(english_name, english_name)
+    
     def classify_character_role(self, char_name: str):
         """キャラクターの役割を判定"""
         roles = []
@@ -73,41 +80,48 @@ class TeamGeneratorCog(commands.Cog):
             team = []
             used_names = set()
             
-            # 1. メインDPS
-            if char_by_role['dps']:
-                dps = random.choice(char_by_role['dps'])
-                team.append(('メインアタッカー', dps))
-                used_names.add(dps.name)
+            # 優先順位付きでチーム編成
+            role_assignments = [
+                ('メインアタッカー', 'dps'),
+                ('サブアタッカー', 'sub_dps'),
+                ('サポート', 'support'),
+                ('ヒーラー', 'healer')
+            ]
             
-            # 2. サブDPS
-            available_sub = [c for c in char_by_role['sub_dps'] if c.name not in used_names]
-            if available_sub:
-                sub_dps = random.choice(available_sub)
-                team.append(('サブアタッカー', sub_dps))
-                used_names.add(sub_dps.name)
+            for display_role, role_key in role_assignments:
+                if len(team) >= 4:
+                    break
+                    
+                available = [c for c in char_by_role[role_key] if c.name not in used_names]
+                if available:
+                    selected = random.choice(available)
+                    team.append((display_role, selected))
+                    used_names.add(selected.name)
             
-            # 3. サポート
-            available_support = [c for c in char_by_role['support'] if c.name not in used_names]
-            if available_support:
-                support = random.choice(available_support)
-                team.append(('サポート', support))
-                used_names.add(support.name)
-            
-            # 4. ヒーラー
-            available_healer = [c for c in char_by_role['healer'] if c.name not in used_names]
-            if available_healer:
-                healer = random.choice(available_healer)
-                team.append(('ヒーラー', healer))
-                used_names.add(healer.name)
-            
-            # チームが4人未満の場合、残りのキャラから補充
+            # チームが4人未満の場合、残りのキャラから役割を自動判定して補充
             if len(team) < 4:
-                all_chars = [c for c in owned_characters if c.name not in used_names]
-                while len(team) < 4 and all_chars:
-                    extra = random.choice(all_chars)
-                    team.append(('サブ', extra))
-                    used_names.add(extra.name)
-                    all_chars = [c for c in all_chars if c.name != extra.name]
+                remaining_chars = [c for c in owned_characters if c.name not in used_names]
+                
+                # レアリティとレベルでソート（高い方を優先）
+                remaining_chars.sort(key=lambda x: (x.rarity, x.level), reverse=True)
+                
+                # 残りの役割を割り当て
+                remaining_roles = ['メインアタッカー', 'サブアタッカー', 'サポート', 'ヒーラー']
+                used_roles = [role for role, _ in team]
+                available_roles = [r for r in remaining_roles if r not in used_roles]
+                
+                for char in remaining_chars:
+                    if len(team) >= 4:
+                        break
+                    
+                    # まだ使われていない役割があれば使用、なければ「サブ」
+                    if available_roles:
+                        role = available_roles.pop(0)
+                    else:
+                        role = 'サブ'
+                    
+                    team.append((role, char))
+                    used_names.add(char.name)
             
             return team
         
@@ -136,7 +150,17 @@ class TeamGeneratorCog(commands.Cog):
             
             # HoYoLAB APIから所持キャラを取得
             client = genshin.Client(user_cookies)
-            characters = await client.get_genshin_characters()
+            
+            # アカウント情報からUIDを取得
+            accounts = await client.get_game_accounts()
+            genshin_accounts = [acc for acc in accounts if acc.game == genshin.Game.GENSHIN]
+            
+            if not genshin_accounts:
+                await interaction.followup.send('❌ 原神のアカウントが見つかりませんでした。')
+                return
+            
+            uid = genshin_accounts[0].uid
+            characters = await client.get_genshin_characters(uid)
             
             if not characters:
                 await interaction.followup.send('❌ キャラクターが見つかりませんでした。')
@@ -168,9 +192,10 @@ class TeamGeneratorCog(commands.Cog):
             
             for i, (role, char) in enumerate(team, 1):
                 rarity_stars = '⭐' * char.rarity
+                jp_name = self.get_japanese_name(char.name)
                 embed.add_field(
                     name=f'{i}. {role}',
-                    value=f'{char.name} {rarity_stars}\nLv.{char.level}',
+                    value=f'{jp_name} {rarity_stars}\nLv.{char.level}',
                     inline=True
                 )
             

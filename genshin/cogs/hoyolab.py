@@ -4,6 +4,7 @@ from discord import app_commands
 import genshin
 import asyncio
 from datetime import datetime, timedelta
+from config.constants import CharacterNameMapping
 
 class HoyolabCog(commands.Cog):
     def __init__(self, bot):
@@ -17,6 +18,10 @@ class HoyolabCog(commands.Cog):
     def get_database_cog(self):
         """データベースCogを取得"""
         return self.bot.get_cog('DatabaseCog')
+    
+    def get_japanese_name(self, english_name: str):
+        """英語名を日本語名に変換"""
+        return CharacterNameMapping.NAMES.get(english_name, english_name)
 
     @tasks.loop(minutes=30)  # 30分ごとにチェック
     async def resin_check_loop(self):
@@ -305,48 +310,64 @@ class HoyolabCog(commands.Cog):
             await interaction.response.defer()
             
             client = genshin.Client(user_cookies)
-            characters = await client.get_genshin_characters()
+            
+            # アカウント情報からUIDを取得
+            accounts = await client.get_game_accounts()
+            genshin_accounts = [acc for acc in accounts if acc.game == genshin.Game.GENSHIN]
+            
+            if not genshin_accounts:
+                await interaction.followup.send('❌ 原神のアカウントが見つかりませんでした。')
+                return
+            
+            uid = genshin_accounts[0].uid
+            characters = await client.get_genshin_characters(uid)
             
             if not characters:
                 await interaction.followup.send('キャラクターが見つかりませんでした。')
                 return
 
-            # レアリティ別に分類
-            five_star_chars = [c for c in characters if c.rarity == 5]
-            four_star_chars = [c for c in characters if c.rarity == 4]
+            # 元素別に分類
+            element_order = ['Pyro', 'Hydro', 'Electro', 'Cryo', 'Anemo', 'Geo', 'Dendro']
+            element_names = {
+                'Pyro': '🔥 炎',
+                'Hydro': '💧 水',
+                'Electro': '⚡ 雷',
+                'Cryo': '❄️ 氷',
+                'Anemo': '🌪️ 風',
+                'Geo': '🪨 岩',
+                'Dendro': '🌿 草'
+            }
+            
+            chars_by_element = {}
+            for element in element_order:
+                chars_by_element[element] = [c for c in characters if c.element == element]
             
             embed = discord.Embed(
-                title='🎭 所持キャラクター',
+                title='🎭 所持キャラクター（元素順）',
+                description=f'合計 {len(characters)}体',
                 color=0xFFD700
             )
             
-            if five_star_chars:
-                five_star_list = []
-                for char in sorted(five_star_chars, key=lambda x: x.level, reverse=True)[:10]:
-                    five_star_list.append(f'{char.name} Lv.{char.level}')
+            for element in element_order:
+                element_chars = chars_by_element[element]
+                if not element_chars:
+                    continue
                 
-                embed.add_field(
-                    name='⭐⭐⭐⭐⭐ 5星キャラクター',
-                    value='\n'.join(five_star_list),
-                    inline=False
-                )
-            
-            if four_star_chars:
-                four_star_list = []
-                for char in sorted(four_star_chars, key=lambda x: x.level, reverse=True)[:15]:
-                    four_star_list.append(f'{char.name} Lv.{char.level}')
+                # レアリティとレベルでソート
+                sorted_chars = sorted(element_chars, key=lambda x: (x.rarity, x.level), reverse=True)
                 
-                embed.add_field(
-                    name='⭐⭐⭐⭐ 4星キャラクター',
-                    value='\n'.join(four_star_list),
-                    inline=False
-                )
-            
-            embed.add_field(
-                name='統計',
-                value=f'5星: {len(five_star_chars)}体\n4星: {len(four_star_chars)}体\n合計: {len(characters)}体',
-                inline=False
-            )
+                char_list = []
+                for char in sorted_chars[:20]:  # 各元素最大20体
+                    jp_name = self.get_japanese_name(char.name)
+                    stars = '⭐' * char.rarity
+                    char_list.append(f'{jp_name} {stars} Lv.{char.level}')
+                
+                if char_list:
+                    embed.add_field(
+                        name=f'{element_names[element]} ({len(element_chars)}体)',
+                        value='\n'.join(char_list),
+                        inline=False
+                    )
             
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             embed.timestamp = discord.utils.utcnow()

@@ -50,6 +50,14 @@ class DatabaseCog(commands.Cog):
             )
         ''')
         
+        # 既存のuser_settingsテーブルにresin_thresholdカラムを追加（存在しない場合）
+        try:
+            cursor.execute("SELECT resin_threshold FROM user_settings LIMIT 1")
+        except sqlite3.OperationalError:
+            # カラムが存在しない場合は追加
+            cursor.execute("ALTER TABLE user_settings ADD COLUMN resin_threshold INTEGER DEFAULT 200")
+            print("データベースを更新しました: resin_threshold カラムを追加")
+        
         conn.commit()
         conn.close()
 
