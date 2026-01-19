@@ -3,51 +3,51 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 from datetime import datetime, timedelta
-
+from config.constants import ResinConstants, ColorConstants, MessageConstants
 class ResinCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.resin_timers = {}  # ユーザーIDをキーとした樹脂タイマー
 
-    def calculate_resin_time(self, current_resin: int, target_resin: int = 160):
+    def calculate_resin_time(self, current_resin: int, target_resin: int = ResinConstants.MAX_RESIN):
         """樹脂の回復時間を計算"""
         if current_resin >= target_resin:
             return None
         
         resin_needed = target_resin - current_resin
-        minutes_needed = resin_needed * 8  # 1樹脂 = 8分
+        minutes_needed = resin_needed * ResinConstants.RESIN_RECOVERY_MINUTES  # 1樹脂 = 8分
         
         return datetime.now() + timedelta(minutes=minutes_needed)
 
     @app_commands.command(name='resin', description='樹脂の回復時間を計算します')
     @app_commands.describe(
         current='現在の樹脂数',
-        target='目標樹脂数（デフォルト: 160）'
+        target=f'目標樹脂数（デフォルト: {ResinConstants.MAX_RESIN}）'
     )
-    async def resin(self, interaction: discord.Interaction, current: int, target: int = 160):
-        if current < 0 or current > 160:
-            await interaction.response.send_message('現在の樹脂数は0〜160の間で入力してください。', ephemeral=True)
+    async def resin(self, interaction: discord.Interaction, current: int, target: int = ResinConstants.MAX_RESIN):
+        if current < 0 or current > ResinConstants.MAX_RESIN:
+            await interaction.response.send_message(MessageConstants.RESIN_RANGE_ERROR, ephemeral=True)
             return
         
-        if target < current or target > 160:
-            await interaction.response.send_message('目標樹脂数は現在の樹脂数より大きく、160以下で入力してください。', ephemeral=True)
+        if target < current or target > ResinConstants.MAX_RESIN:
+            await interaction.response.send_message(MessageConstants.TARGET_RESIN_ERROR, ephemeral=True)
             return
         
         if current == target:
-            await interaction.response.send_message('既に目標樹脂数に達しています！', ephemeral=True)
+            await interaction.response.send_message(MessageConstants.RESIN_ALREADY_FULL, ephemeral=True)
             return
         
         recovery_time = self.calculate_resin_time(current, target)
         resin_needed = target - current
-        minutes_needed = resin_needed * 8
+        minutes_needed = resin_needed * ResinConstants.RESIN_RECOVERY_MINUTES
         
         embed = discord.Embed(
             title='樹脂回復計算',
-            color=0x00CED1
+            color=ColorConstants.INFO_COLOR
         )
         
-        embed.add_field(name='現在の樹脂', value=f'{current}/160', inline=True)
-        embed.add_field(name='目標樹脂', value=f'{target}/160', inline=True)
+        embed.add_field(name='現在の樹脂', value=f'{current}/{ResinConstants.MAX_RESIN}', inline=True)
+        embed.add_field(name='目標樹脂', value=f'{target}/{ResinConstants.MAX_RESIN}', inline=True)
         embed.add_field(name='必要な樹脂', value=f'{resin_needed}', inline=True)
         
         embed.add_field(
@@ -62,7 +62,7 @@ class ResinCog(commands.Cog):
             inline=True
         )
         
-        embed.set_footer(text='樹脂は8分で1回復します')
+        embed.set_footer(text=MessageConstants.RESIN_RECOVERY_INFO)
         embed.timestamp = discord.utils.utcnow()
         
         await interaction.response.send_message(embed=embed)
@@ -70,16 +70,16 @@ class ResinCog(commands.Cog):
     @app_commands.command(name='resin_reminder', description='樹脂が満タンになったときにリマインダーを設定します')
     @app_commands.describe(current='現在の樹脂数')
     async def resin_reminder(self, interaction: discord.Interaction, current: int):
-        if current < 0 or current > 160:
-            await interaction.response.send_message('現在の樹脂数は0〜160の間で入力してください。', ephemeral=True)
+        if current < 0 or current > ResinConstants.MAX_RESIN:
+            await interaction.response.send_message(MessageConstants.RESIN_RANGE_ERROR, ephemeral=True)
             return
         
-        if current == 160:
-            await interaction.response.send_message('既に樹脂が満タンです！', ephemeral=True)
+        if current == ResinConstants.MAX_RESIN:
+            await interaction.response.send_message(MessageConstants.RESIN_MAX_ERROR, ephemeral=True)
             return
         
         user_id = interaction.user.id
-        recovery_time = self.calculate_resin_time(current, 160)
+        recovery_time = self.calculate_resin_time(current, ResinConstants.MAX_RESIN)
         
         # 既存のタイマーをキャンセル
         if user_id in self.resin_timers:
@@ -94,8 +94,8 @@ class ResinCog(commands.Cog):
                 user = await self.bot.fetch_user(user_id)
                 embed = discord.Embed(
                     title='🔔 樹脂リマインダー',
-                    description='樹脂が満タン（160）になりました！',
-                    color=0x00FF00
+                    description=f'樹脂が満タン（{ResinConstants.MAX_RESIN}）になりました！',
+                    color=ColorConstants.SUCCESS_COLOR
                 )
                 await user.send(embed=embed)
             except:
@@ -108,13 +108,13 @@ class ResinCog(commands.Cog):
         self.resin_timers[user_id] = task
         
         embed = discord.Embed(
-            title='リマインダー設定完了',
+            title=MessageConstants.REMINDER_SET_SUCCESS,
             description=f'樹脂が満タンになる時刻: {recovery_time.strftime("%Y/%m/%d %H:%M")}',
-            color=0x00CED1
+            color=ColorConstants.INFO_COLOR
         )
-        embed.add_field(name='現在の樹脂', value=f'{current}/160', inline=True)
-        embed.add_field(name='回復時間', value=f'{(160-current)*8//60}時間 {(160-current)*8%60}分', inline=True)
-        embed.set_footer(text='DMでお知らせします')
+        embed.add_field(name='現在の樹脂', value=f'{current}/{ResinConstants.MAX_RESIN}', inline=True)
+        embed.add_field(name='回復時間', value=f'{(ResinConstants.MAX_RESIN-current)*ResinConstants.RESIN_RECOVERY_MINUTES//60}時間 {(ResinConstants.MAX_RESIN-current)*ResinConstants.RESIN_RECOVERY_MINUTES%60}分', inline=True)
+        embed.set_footer(text=MessageConstants.DM_NOTIFICATION_INFO)
         
         await interaction.response.send_message(embed=embed)
 

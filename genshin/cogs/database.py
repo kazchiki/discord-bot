@@ -42,6 +42,7 @@ class DatabaseCog(commands.Cog):
             CREATE TABLE IF NOT EXISTS user_settings (
                 user_id INTEGER PRIMARY KEY,
                 resin_reminder_enabled BOOLEAN DEFAULT FALSE,
+                resin_threshold INTEGER DEFAULT 200,
                 notification_channel_id INTEGER,
                 timezone TEXT DEFAULT 'UTC',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

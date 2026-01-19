@@ -1,130 +1,155 @@
 # 原神 Discord Bot
 
-原神の情報を提供するDiscord Botです。複数の認証方式に対応し、スマホでも簡単に使えます。
+原神の情報を提供するDiscord Botです。HoYoLAB公式APIを使用してリアルタイム情報を取得できます。
 
-## 機能
+## 主要機能
 
-### 基本機能（認証不要）
-- **キャラクター情報**: `/character` - 原神キャラクターの詳細情報を表示
-- **ガチャシミュレーター**: `/gacha` - 単発・10連ガチャのシミュレーション
-- **樹脂計算機**: `/resin` - 樹脂の回復時間を計算
-- **樹脂リマインダー**: `/resin_reminder` - 樹脂満タン時にDMで通知
-- **今日のドメイン**: `/daily_domain` - おすすめ聖遺物ドメイン
-- **元素反応**: `/element_reaction` - 元素反応の詳細説明
-- **チーム提案**: `/team_suggest` - ランダムチーム編成提案
-- **聖遺物のコツ**: `/artifact_tips` - 厳選のヒント
+### 🎯 チームジェネレーター
+- **コマンド**: `/team_generator`
+- あなたの所持キャラクターから最適なチーム編成を自動生成
+- HoYoLAB APIから実際の所持キャラを取得
+- 役割別（メインDPS、サブDPS、サポート、ヒーラー）に自動分類
 
-### HoYoLAB Cookie方式（PC推奨）
-- **リアルタイム樹脂状況**: `/resin_status` - 現在の樹脂・デイリー任務・週ボスの状況
-- **所持キャラクター**: `/characters` - 実際の所持キャラクター一覧とレベル
-- **クッキー設定**: `/set_cookie` - HoYoLABのクッキーを設定（DMのみ）
+### 🔔 樹脂自動通知機能
+- **コマンド**: `/resin_notification [有効/無効] [閾値]`
+- 30分ごとにHoYoLAB APIで樹脂をチェック
+- 設定した閾値（または満タン）に達したらDMで自動通知
+- 定期チェックなので手動確認不要
 
-### Authkey方式（スマホ対応・推奨）
-- **ガチャ履歴**: `/gacha_history` - 実際のガチャ履歴を表示
-- **Authkey設定**: `/set_authkey` - Authkeyを設定（DMのみ）
-- **取得方法**: `/authkey_help` - Authkey取得方法の説明
+### 📊 リアルタイム樹脂状況
+- **コマンド**: `/resin_status`
+- 現在の樹脂数と満タンまでの時間
+- デイリー任務の進捗
+- 週ボス割引の残り回数
+- 洞天宝銭の状況
+- 参量物質変換器の状態
+
+### 👥 所持キャラクター一覧
+- **コマンド**: `/characters`
+- 実際の所持キャラクター一覧
+- レベルとレアリティ別に表示
+- HoYoLAB APIから自動取得
+
+### ⚙️ 基本機能
+- **樹脂計算機**: `/resin` - 樹脂の回復時間を手動計算
+- **樹脂リマインダー**: `/resin_reminder` - 指定時間後にDM通知
 
 ## セットアップ
 
-1. 必要なパッケージをインストール:
+### 1. 必要なパッケージをインストール
+
 ```bash
+cd genshin
 pip install -r requirements.txt
 ```
 
-2. `.env` ファイルを作成し、Discord Botのトークンを設定:
-```
+### 2. Discord Botのトークンを設定
+
+`.env` ファイルを作成:
+
+```env
 DISCORD_TOKEN=your_discord_bot_token_here
 ```
 
-3. Botを起動:
+### 3. Botを起動
+
 ```bash
 python bot.py
 ```
-
-## 認証方式の比較
-
-| 方式 | 対応デバイス | 設定の簡単さ | 有効期限 | 取得可能データ |
-|------|-------------|-------------|----------|---------------|
-| **Authkey** | 📱スマホ・PC | ⭐⭐⭐ | 24時間 | ガチャ履歴 |
-| **Cookie** | 💻PC | ⭐⭐ | ログアウトまで | 樹脂・キャラクター |
-
-### 📱 Authkey方式（推奨）
-**メリット:**
-- スマホでも簡単に取得可能
-- ログアウト不要
-- ガチャ履歴が見れる
-
-**デメリット:**
-- 24時間で期限切れ
-- 樹脂情報は取得不可
-
-**取得方法:**
-1. 原神アプリでガチャ画面を開く
-2. 「履歴」をタップ
-3. ブラウザのURLをコピー
-4. `/set_authkey [URL] [UID]` で設定
-
-### 💻 Cookie方式
-**メリット:**
-- リアルタイム樹脂情報
-- 所持キャラクター情報
-- 長期間有効
-
-**デメリット:**
-- PC必須
-- ログアウトで無効化
-- 取得が複雑
-
-**取得方法:**
-1. [HoYoLAB](https://www.hoyolab.com/) にログイン
-2. ブラウザの開発者ツール (F12) を開く
-3. Application/Storage → Cookies → https://www.hoyolab.com
-4. `ltuid_v2` と `ltoken_v2` をコピー
-5. `/set_cookie ltuid_v2=123456; ltoken_v2=abcdef...` で設定
 
 ## Discord Bot の作成方法
 
 1. [Discord Developer Portal](https://discord.com/developers/applications) にアクセス
 2. 「New Application」をクリックしてアプリケーションを作成
 3. 「Bot」タブでBotを作成し、トークンをコピー
-4. 「OAuth2」→「URL Generator」で必要な権限を設定してBotをサーバーに招待
+4. 「OAuth2」→「URL Generator」で以下の権限を設定:
+   - `bot` scope
+   - `applications.commands` scope
+   - 権限: Send Messages, Embed Links, Read Message History
+5. 生成されたURLからBotをサーバーに招待
 
-### 必要な権限
-- Send Messages
-- Use Slash Commands
-- Embed Links
-- Send Messages in Threads
+## HoYoLAB Cookie の取得方法
+
+### 💻 PC（推奨）
+
+1. [HoYoLAB](https://www.hoyolab.com/) にログイン
+2. ブラウザの開発者ツール (F12) を開く
+3. Application/Storage → Cookies → https://www.hoyolab.com
+4. `ltuid_v2` と `ltoken_v2` の値をコピー
+5. Botに以下の形式でDM送信:
+   ```
+   /set_cookie ltuid_v2=123456789; ltoken_v2=abcdefghijklmnop...
+   ```
+
+### ⚠️ 重要な注意事項
+
+- **必ずDMで実行**: `/set_cookie` はDMでのみ使用可能（セキュリティのため）
+- **暗号化保存**: クッキーは暗号化してデータベースに保存されます
+- **ログアウトで無効**: HoYoLABからログアウトすると再設定が必要です
+- **安全に管理**: クッキー情報は他人に絶対に教えないでください
 
 ## 使用方法
 
-### 基本コマンド（認証不要）
-- `/character [キャラクター名]` - キャラクター情報を表示
-- `/gacha [回数]` - ガチャシミュレーション
-- `/daily_domain` - 今日のおすすめドメイン
-- `/element_reaction [反応]` - 元素反応の説明
-- `/team_suggest` - ランダムチーム編成
-- `/artifact_tips` - 聖遺物厳選のコツ
+### 初回設定
 
-### Authkeyコマンド（スマホ対応）
-- `/authkey_help` - 取得方法の説明
-- `/set_authkey [URL/Authkey] [UID]` - Authkey設定（DMのみ）
-- `/gacha_history [バナー]` - ガチャ履歴表示
+1. BotにDMを送信
+2. `/set_cookie [クッキー]` でHoYoLABクッキーを設定
+3. 設定完了後、各コマンドが使用可能に
 
-### Cookieコマンド（PC）
+### コマンド一覧
+
+#### 認証情報管理
 - `/set_cookie [クッキー]` - HoYoLABクッキー設定（DMのみ）
-- `/resin_status` - リアルタイム樹脂状況
-- `/characters` - 所持キャラクター一覧
-
-### 共通コマンド
 - `/delete_cookie` - 保存された認証情報を削除
 
-## 注意事項
+#### メイン機能
+- `/team_generator` - 所持キャラからチーム編成を生成
+- `/resin_notification [有効/無効] [閾値]` - 樹脂自動通知の設定
+- `/resin_status` - リアルタイム樹脂・デイリー状況
+- `/characters` - 所持キャラクター一覧
 
-- 認証情報の設定は必ずDMで行ってください（セキュリティのため）
-- 認証情報は暗号化してデータベースに保存されます
-- Authkeyは24時間で期限切れになります
-- Cookieはログアウト時に無効になります
-- API制限により、頻繁なリクエストは避けてください
+#### 基本機能
+- `/resin [現在の樹脂] [目標樹脂]` - 樹脂回復時間を計算
+- `/resin_reminder [現在の樹脂]` - 満タン時にDM通知
+
+## 機能詳細
+
+### 🎯 チームジェネレーター
+
+あなたの所持キャラクターから最適なチーム編成を自動生成します。
+
+**特徴:**
+- HoYoLAB APIから実際の所持キャラを取得
+- キャラクターを役割別に自動分類（メインDPS、サブDPS、サポート、ヒーラー）
+- バランスの取れたチーム編成を提案
+- 何度でも再生成可能
+
+**使用例:**
+```
+/team_generator
+```
+
+### 🔔 樹脂自動通知
+
+定期的に樹脂をチェックして、自動でDM通知を送ります。
+
+**特徴:**
+- 30分ごとに自動チェック
+- 閾値を設定可能（デフォルト: 満タン）
+- DMで通知するのでサーバーを汚さない
+- いつでも有効/無効を切り替え可能
+
+**使用例:**
+```
+# 満タンで通知
+/resin_notification 有効
+
+# 160に達したら通知
+/resin_notification 有効 160
+
+# 通知を停止
+/resin_notification 無効
+```
 
 ## 複数人での使用
 
@@ -132,4 +157,35 @@ python bot.py
 - ✅ 暗号化されたデータベースで安全に保存
 - ✅ ユーザー間でのデータ漏洩防止
 - ✅ Bot再起動後もデータ保持
-- ✅ スケーラブルな設計
+
+## トラブルシューティング
+
+### クッキーエラーが出る
+- HoYoLABに再ログインして新しいクッキーを設定してください
+- ログアウトした場合は必ず再設定が必要です
+
+### コマンドが表示されない
+- Botを招待し直して、スラッシュコマンド権限を付与してください
+- Bot再起動後、コマンドの同期に数分かかることがあります
+
+### 通知が来ない
+- DMの受信設定を確認してください
+- `/resin_notification` が有効になっているか確認してください
+
+## セキュリティ
+
+- 認証情報の設定は必ずDMで行ってください
+- クッキーは暗号化して保存されます
+- 他のユーザーからはアクセスできません
+- クッキー情報は絶対に他人に共有しないでください
+
+## 必要なライブラリ
+
+- `discord.py` - Discord Bot API
+- `genshin.py` - HoYoLAB API ラッパー
+- `cryptography` - クッキー暗号化
+- `python-dotenv` - 環境変数管理
+
+## ライセンス
+
+このBotはHoYoLAB公式APIを使用しています。利用規約を遵守してご使用ください。
