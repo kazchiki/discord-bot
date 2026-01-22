@@ -81,10 +81,9 @@ class HoyolabCog(commands.Cog):
                             )
                             
                             if notes.current_resin < notes.max_resin:
-                                recovery_time = datetime.now() + timedelta(seconds=notes.resin_recovery_time)
                                 embed.add_field(
                                     name='満タンまで',
-                                    value=recovery_time.strftime('%H:%M'),
+                                    value=notes.resin_recovery_time.strftime('%H:%M'),
                                     inline=True
                                 )
                             
@@ -213,10 +212,9 @@ class HoyolabCog(commands.Cog):
             client = genshin.Client(user_cookies)
             notes = await client.get_genshin_notes()
             
-            # 樹脂回復時間を計算
+            # 樹脂回復時間
             if notes.current_resin < notes.max_resin:
-                recovery_time = datetime.now() + timedelta(seconds=notes.resin_recovery_time)
-                recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                recovery_str = notes.resin_recovery_time.strftime('%Y/%m/%d %H:%M')
             else:
                 recovery_str = '満タン！'
 
