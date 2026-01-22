@@ -214,16 +214,21 @@ class HoyolabCog(commands.Cog):
             notes = await client.get_genshin_notes()
             
             # 樹脂回復時間を計算
+            debug_info = []  # デバッグ情報を収集
+            
             if notes.current_resin < notes.max_resin:
                 try:
                     # デバッグ用：resin_recovery_timeの値と型を確認
-                    print(f"Debug: resin_recovery_time = {notes.resin_recovery_time}, type = {type(notes.resin_recovery_time)}")
+                    debug_info.append(f"resin_recovery_time = {notes.resin_recovery_time}")
+                    debug_info.append(f"type = {type(notes.resin_recovery_time)}")
                     
                     # resin_recovery_timeが数値でない場合の対処
                     if notes.resin_recovery_time is None:
                         recovery_str = '計算中...'
+                        debug_info.append("処理: None値")
                     elif isinstance(notes.resin_recovery_time, (int, float)):
                         recovery_seconds = int(notes.resin_recovery_time)
+                        debug_info.append(f"処理: 数値型, seconds = {recovery_seconds}")
                         if recovery_seconds > 0:
                             recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
                             recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
@@ -232,6 +237,7 @@ class HoyolabCog(commands.Cog):
                     elif hasattr(notes.resin_recovery_time, 'total_seconds'):
                         # timedeltaオブジェクトの場合
                         recovery_seconds = int(notes.resin_recovery_time.total_seconds())
+                        debug_info.append(f"処理: timedelta型, seconds = {recovery_seconds}")
                         if recovery_seconds > 0:
                             recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
                             recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
@@ -240,16 +246,18 @@ class HoyolabCog(commands.Cog):
                     else:
                         # 文字列や他の型の場合、数値変換を試行
                         recovery_seconds = int(float(str(notes.resin_recovery_time)))
+                        debug_info.append(f"処理: 文字列変換, seconds = {recovery_seconds}")
                         if recovery_seconds > 0:
                             recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
                             recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
                         else:
                             recovery_str = '計算中...'
                 except (ValueError, TypeError, AttributeError) as e:
-                    print(f"Debug: Error processing resin_recovery_time: {e}")
+                    debug_info.append(f"エラー: {e}")
                     recovery_str = '不明'
             else:
                 recovery_str = '満タン！'
+                debug_info.append("処理: 既に満タン")
 
             embed = discord.Embed(
                 title='🔋 樹脂状況',
@@ -315,6 +323,14 @@ class HoyolabCog(commands.Cog):
 
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             embed.timestamp = discord.utils.utcnow()
+            
+            # デバッグ情報を追加（一時的）
+            if debug_info:
+                embed.add_field(
+                    name='🔧 デバッグ情報',
+                    value='\n'.join(debug_info),
+                    inline=False
+                )
             
             await interaction.followup.send(embed=embed)
 
