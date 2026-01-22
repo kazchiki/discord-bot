@@ -4,7 +4,7 @@ from discord import app_commands
 import genshin
 import asyncio
 from datetime import datetime, timedelta
-from config.constants import CharacterNameMapping
+from config.constants import CharacterNameMapping, ElementConstants
 
 class HoyolabCog(commands.Cog):
     def __init__(self, bot):
@@ -190,7 +190,7 @@ class HoyolabCog(commands.Cog):
                 ephemeral=True
             )
 
-    @app_commands.command(name='resin_status', description='現在の樹脂状況を取得します')
+    @app_commands.command(name='status', description='現在のゲーム内状況を取得します')
     async def resin_status(self, interaction: discord.Interaction):
         db_cog = self.get_database_cog()
         if not db_cog:
@@ -217,6 +217,7 @@ class HoyolabCog(commands.Cog):
                 recovery_str = notes.resin_recovery_time.strftime('%Y/%m/%d %H:%M')
             else:
                 recovery_str = '満タン！'
+                debug_info.append("処理: 既に満タン")
 
             embed = discord.Embed(
                 title='🔋 樹脂状況',
@@ -260,11 +261,19 @@ class HoyolabCog(commands.Cog):
             # 参量物質変換器
             if hasattr(notes, 'transformer'):
                 if notes.transformer.obtained:
-                    if notes.transformer.recovery_time:
-                        transformer_time = datetime.now() + timedelta(seconds=notes.transformer.recovery_time)
-                        transformer_str = transformer_time.strftime('%H:%M')
-                    else:
-                        transformer_str = '使用可能'
+                    try:
+                        if notes.transformer.recovery_time:
+                            # recovery_timeが数値でない場合の対処
+                            recovery_seconds = int(notes.transformer.recovery_time)
+                            if recovery_seconds > 0:
+                                transformer_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                                transformer_str = transformer_time.strftime('%H:%M')
+                            else:
+                                transformer_str = '使用可能'
+                        else:
+                            transformer_str = '使用可能'
+                    except (ValueError, TypeError):
+                        transformer_str = '不明'
                     
                     embed.add_field(
                         name='参量物質変換器',
@@ -274,6 +283,14 @@ class HoyolabCog(commands.Cog):
 
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             embed.timestamp = discord.utils.utcnow()
+            
+            # デバッグ情報を追加（一時的）
+            if debug_info:
+                embed.add_field(
+                    name='🔧 デバッグ情報',
+                    value='\n'.join(debug_info),
+                    inline=False
+                )
             
             await interaction.followup.send(embed=embed)
 
@@ -325,23 +342,15 @@ class HoyolabCog(commands.Cog):
                 return
 
             # 元素別に分類
-            element_order = ['Pyro', 'Hydro', 'Electro', 'Cryo', 'Anemo', 'Geo', 'Dendro']
-            element_names = {
-                'Pyro': '🔥 炎',
-                'Hydro': '💧 水',
-                'Electro': '⚡ 雷',
-                'Cryo': '❄️ 氷',
-                'Anemo': '🌪️ 風',
-                'Geo': '🪨 岩',
-                'Dendro': '🌿 草'
-            }
+            element_order = ElementConstants.ELEMENT_ORDER
+            element_names = ElementConstants.ELEMENT_NAMES
             
             chars_by_element = {}
             for element in element_order:
                 chars_by_element[element] = [c for c in characters if c.element == element]
             
             embed = discord.Embed(
-                title='🎭 所持キャラクター（元素順）',
+                title='所持キャラクター',
                 description=f'合計 {len(characters)}体',
                 color=0xFFD700
             )
@@ -357,8 +366,8 @@ class HoyolabCog(commands.Cog):
                 char_list = []
                 for char in sorted_chars[:20]:  # 各元素最大20体
                     jp_name = self.get_japanese_name(char.name)
-                    stars = '⭐' * char.rarity
-                    char_list.append(f'{jp_name} {stars} Lv.{char.level}')
+                    element_name = element_names[element]
+                    char_list.append(f'{jp_name} {element_name} Lv.{char.level}')
                 
                 if char_list:
                     embed.add_field(

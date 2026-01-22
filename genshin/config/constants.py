@@ -4,6 +4,24 @@
 すべての定数をここで一元管理します
 """
 
+# ===== 元素関連定数 =====
+class ElementConstants:
+    """元素関連の定数"""
+    # 元素名マッピング（英語→日本語）
+    ELEMENT_NAMES = {
+        'Pyro': '炎',
+        'Hydro': '水',
+        'Electro': '雷',
+        'Cryo': '氷',
+        'Anemo': '風',
+        'Geo': '岩',
+        'Dendro': '草'
+    }
+    
+    # 元素順序（表示用）
+    ELEMENT_ORDER = ['Pyro', 'Hydro', 'Electro', 'Cryo', 'Anemo', 'Geo', 'Dendro']
+
+
 # ===== 樹脂関連定数 =====
 class ResinConstants:
     MAX_RESIN = 200  # 最大樹脂数
@@ -39,8 +57,8 @@ class ColorConstants:
 # ===== メッセージ・テキスト関連 =====
 class MessageConstants:
     # エラーメッセージ
-    RESIN_RANGE_ERROR = "現在の樹脂数は0〜160の間で入力してください。"
-    TARGET_RESIN_ERROR = "目標樹脂数は現在の樹脂数より大きく、160以下で入力してください。"
+    RESIN_RANGE_ERROR = "現在の樹脂数は0〜200の間で入力してください。"
+    TARGET_RESIN_ERROR = "目標樹脂数は現在の樹脂数より大きく、200以下で入力してください。"
     RESIN_ALREADY_FULL = "既に目標樹脂数に達しています！"
     RESIN_MAX_ERROR = "既に樹脂が満タンです！"
     
@@ -70,7 +88,6 @@ class APIConstants:
 class DatabaseConstants:
     # テーブル名
     USER_DATA_TABLE = "user_data"
-    GACHA_HISTORY_TABLE = "gacha_history"
     
     # 暗号化関連
     ENCRYPTION_KEY_LENGTH = 32
@@ -82,118 +99,149 @@ class DatabaseConstants:
 class CharacterNameMapping:
     """英語名→日本語名の変換マッピング"""
     NAMES = {
-        # ★5キャラクター
-        'Hu Tao': '胡桃',
+        # 星5キャラクター
+        # モンド
+        'Venti': 'ウェンティ',
+        'Diluc': 'ディルック',
+        'Jean': 'ジン',
+        'Mona': 'モナ',
+        'Klee': 'クレー',
+        'Albedo': 'アルベド',
+        'Eula': 'エウルア',
+        'Durin': 'ドゥリン',
+        'Aloy': 'アーロイ',
+
+        # 璃月
+        'Zhongli': '鍾離',
+        'Qiqi': '七七',
+        'Keqing': '刻晴',
         'Ganyu': '甘雨',
+        'Hu Tao': '胡桃',
+        'Xiao': '魈',
+        'Shenhe': '申鶴',
+        'Yelan': '夜蘭',
+        'Baizhu': '白朮',
+        'Xianyun': '閑雲',
+
+        # 稲妻
         'Raiden Shogun': '雷電将軍',
-        'Tartaglia': 'タルタリヤ',
-        'Arataki Itto': '荒瀧一斗',
+        'Kaedehara Kazuha': '楓原万葉',
+        'Yoimiya': '宵宮',
         'Kamisato Ayaka': '神里綾華',
         'Kamisato Ayato': '神里綾人',
-        'Yoimiya': '宵宮',
-        'Eula': 'エウルア',
-        'Xiao': '魈',
-        'Neuvillette': 'ヌヴィレット',
-        'Arlecchino': 'アルレッキーノ',
-        'Wriothesley': 'リオセスリ',
-        'Wanderer': '放浪者',
+        'Sangonomiya Kokomi': '珊瑚宮心海',
+        'Yae Miko': '八重神子',
+        'Arataki Itto': '荒瀧一斗',
+        'Chiori': '千織',
+        'Yumemizuki Mizuki': '夢見月瑞希',
+
+        # スメール
+        'Nahida': 'ナヒーダ',
+        'Tighnari': 'ティナリ',
+        'Dehya': 'ディシア',
+        'Nilou': 'ニィロウ',
         'Alhaitham': 'アルハイゼン',
+        'Cyno': 'セノ',
+        'Wanderer': '放浪者',
+
+        # フォンテーヌ
+        'Furina': 'フリーナ',
+        'Lyney': 'リネ',
+        'Neuvillette': 'ヌヴィレット',
+        'Wriothesley': 'リオセスリ',
         'Navia': 'ナヴィア',
         'Clorinde': 'クロリンデ',
-        'Diluc': 'ディルック',
-        'Klee': 'クレー',
-        'Cyno': 'セノ',
-        'Tighnari': 'ティナリ',
-        'Kinich': 'キイニチ',
-        'Mualani': 'ムアラニ',
+        'Sigewinne': 'シグウィン',
+        'Emilie': 'エミリエ',
+        'Escofier': 'エスコフィエ',
+
+        # ナタ
         'Mavuika': 'マーヴィカ',
+        'Mualani': 'ムアラニ',
+        'Kinich': 'キイニチ',
         'Xilonen': 'シロネン',
         'Citlali': 'シトラリ',
         'Chasca': 'チャスカ',
-        'Keqing': '刻晴',
-        'Lyney': 'リネ',
-        'Albedo': 'アルベド',
-        'Zhongli': '鍾離',
-        'Venti': 'ウェンティ',
-        'Kaedehara Kazuha': '楓原万葉',
-        'Jean': 'ジン',
-        'Mona': 'モナ',
-        'Qiqi': '七七',
-        'Dehya': 'ディシア',
-        'Shenhe': '申鶴',
-        'Yae Miko': '八重神子',
-        'Yelan': '夜蘭',
-        'Nilou': 'ニィロウ',
-        'Furina': 'フリーナ',
-        'Nahida': 'ナヒーダ',
-        'Baizhu': '白朮',
-        'Sangonomiya Kokomi': '珊瑚宮心海',
-        'Sigewinne': 'シグウィン',
-        'Xianyun': '閑雲',
-        'Chiori': '千織',
-        'Emilie': 'エミリエ',
-        'Aloy': 'アーロイ',
-        'Durin': 'ドゥリン',
+        'Varesa': 'ヴァレサ',
+
+        # ナド・クライ
         'Columbina': 'コロンビーナ',
         'Ineffa': 'イネファ',
-        'Skirk': 'スカーク',
-        'Yumemizuki Mizuki': '夢見月瑞希',
         'Neferiti': 'ネフェル',
         'Flins': 'フリンズ',
         'Lauma': 'ラウマ',
+
+        # スネージナヤ
+        'Tartaglia': 'タルタリヤ',
+        'Arlecchino': 'アルレッキーノ',
+
+        # 分類なし
+        'Skirk': 'スカーク',
         'Manekina': 'マネキン(女)',
         'Manekin': 'マネキン(男)',
-        
-        # ★4キャラクター
+
+        # 星4キャラクター
+        # モンド
+        'Amber': 'アンバー',
+        'Bennett': 'ベネット',
+        'Lisa': 'リサ',
+        'Kaeya': 'ガイア',
+        'Razor': 'レザー',
+        'Fischl': 'フィッシュル',
+        'Rosaria': 'ロサリア',
+        'Diona': 'ディオナ',
+        'Sucrose': 'スクロース',
+        'Barbara': 'バーバラ',
+        'Mika': 'ミカ',
+        'Dahlia': 'ダリア',
+
+        # 璃月
         'Xingqiu': '行秋',
         'Xiangling': '香菱',
-        'Fischl': 'フィッシュル',
-        'Beidou': '北斗',
-        'Rosaria': 'ロサリア',
         'Chongyun': '重雲',
         'Yanfei': '煙緋(えんひ)',
         'Ningguang': '凝光(ぎょうこう)',
         'Xinyan': '辛炎(しんえん)',
-        'Bennett': 'ベネット',
-        'Diona': 'ディオナ',
-        'Sucrose': 'スクロース',
-        'Faruzan': 'ファルザン',
-        'Layla': 'レイラ',
+        'Beidou': '北斗',
         'Yun Jin': '雲菫',
-        'Gorou': 'ゴロー',
-        'Kujou Sara': '九条裟羅',
+        'Yaoyao': 'ヨーヨ',
+        'Gaming': '嘉明(がみん)',
+        'Lan Yan': '藍硯(らんやん)',
+
+        # 稲妻
         'Thoma': 'トーマ',
+        'Kujou Sara': '九条裟羅',
+        'Sayu': '早柚',
+        'Kuki Shinobu': '久岐忍',
+        'Gorou': 'ゴロー',
+        'Kirara': '綺良々(きらら)',
+        'Shikanoin Heizou': '鹿野院平蔵',
+
+        # スメール
+        'Collei': 'コレイ',
+        'Faruzan': 'ファルザン',
+        'Dori': 'ドリー',
+        'Layla': 'レイラ',
         'Candace': 'キャンディス',
         'Kaveh': 'カーヴェ',
+        'Sethos': 'セトス',
+
+        # フォンテーヌ
         'Lynette': 'リネット',
         'Freminet': 'フレミネ',
         'Charlotte': 'シャルロット',
         'Chevreuse': 'シュヴルーズ',
-        'Ororon': 'オロルン',
-        'Lan Yan': '藍硯(らんやん)',
-        'Kirara': '綺良々(きらら)',
-        'Barbara': 'バーバラ',
-        'Noelle': 'ノエル',
-        'Sayu': '早柚',
-        'Yaoyao': 'ヨーヨ',
-        'Mika': 'ミカ',
-        'Collei': 'コレイ',
-        'Dori': 'ドリー',
-        'Amber': 'アンバー',
-        'Lisa': 'リサ',
-        'Kaeya': 'ガイア',
-        'Razor': 'レザー',
-        'Sethos': 'セトス',
-        'Gaming': '嘉明(がみん)',
+
+        # ナタ
         'Kachina': 'カチーナ',
-        'Shikanoin Heizou': '鹿野院平蔵',
-        'Kuki Shinobu': '久岐忍',
+        'Ororon': 'オロルン',
         'Iansan': 'イアンサ',
         'Ifa': 'イファ',
+
+        # ナド・クライ
         'Aino': 'アイノ',
-        'Dahlia': 'ダリア',
         'Jahoda': 'ヤフォダ',
-        
+
         # 主人公
         'Traveler': '旅人',
         'Aether': '空',
@@ -204,7 +252,6 @@ class CharacterNameMapping:
 class LimitConstants:
     # コマンド使用制限
     COMMAND_COOLDOWN = 5  # 秒
-    GACHA_MAX_PULLS = 10  # 一度に引けるガチャの最大数
     
     # 文字列長制限
     MAX_USERNAME_LENGTH = 32
