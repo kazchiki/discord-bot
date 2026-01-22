@@ -4,6 +4,24 @@
 すべての定数をここで一元管理します
 """
 
+# ===== 元素関連定数 =====
+class ElementConstants:
+    """元素関連の定数"""
+    # 元素名マッピング（英語→日本語）
+    ELEMENT_NAMES = {
+        'Pyro': '炎',
+        'Hydro': '水',
+        'Electro': '雷',
+        'Cryo': '氷',
+        'Anemo': '風',
+        'Geo': '岩',
+        'Dendro': '草'
+    }
+    
+    # 元素順序（表示用）
+    ELEMENT_ORDER = ['Pyro', 'Hydro', 'Electro', 'Cryo', 'Anemo', 'Geo', 'Dendro']
+
+
 # ===== 樹脂関連定数 =====
 class ResinConstants:
     MAX_RESIN = 200  # 最大樹脂数

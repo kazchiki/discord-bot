@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import genshin
 import random
-from config.constants import CharacterNameMapping
+from config.constants import CharacterNameMapping, ElementConstants
 
 class TeamGeneratorCog(commands.Cog):
     def __init__(self, bot):
@@ -191,11 +191,11 @@ class TeamGeneratorCog(commands.Cog):
             )
             
             for i, (role, char) in enumerate(team, 1):
-                rarity_stars = '⭐' * char.rarity
+                element_name = ElementConstants.ELEMENT_NAMES.get(char.element, '不明')
                 jp_name = self.get_japanese_name(char.name)
                 embed.add_field(
                     name=f'{i}. {role}',
-                    value=f'{jp_name} {rarity_stars}\nLv.{char.level}',
+                    value=f'{jp_name} {element_name}\nLv.{char.level}',
                     inline=True
                 )
             
