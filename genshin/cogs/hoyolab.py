@@ -216,14 +216,37 @@ class HoyolabCog(commands.Cog):
             # 樹脂回復時間を計算
             if notes.current_resin < notes.max_resin:
                 try:
+                    # デバッグ用：resin_recovery_timeの値と型を確認
+                    print(f"Debug: resin_recovery_time = {notes.resin_recovery_time}, type = {type(notes.resin_recovery_time)}")
+                    
                     # resin_recovery_timeが数値でない場合の対処
-                    recovery_seconds = int(notes.resin_recovery_time) if notes.resin_recovery_time else 0
-                    if recovery_seconds > 0:
-                        recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
-                        recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
-                    else:
+                    if notes.resin_recovery_time is None:
                         recovery_str = '計算中...'
-                except (ValueError, TypeError):
+                    elif isinstance(notes.resin_recovery_time, (int, float)):
+                        recovery_seconds = int(notes.resin_recovery_time)
+                        if recovery_seconds > 0:
+                            recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                            recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                        else:
+                            recovery_str = '計算中...'
+                    elif hasattr(notes.resin_recovery_time, 'total_seconds'):
+                        # timedeltaオブジェクトの場合
+                        recovery_seconds = int(notes.resin_recovery_time.total_seconds())
+                        if recovery_seconds > 0:
+                            recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                            recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                        else:
+                            recovery_str = '計算中...'
+                    else:
+                        # 文字列や他の型の場合、数値変換を試行
+                        recovery_seconds = int(float(str(notes.resin_recovery_time)))
+                        if recovery_seconds > 0:
+                            recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                            recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                        else:
+                            recovery_str = '計算中...'
+                except (ValueError, TypeError, AttributeError) as e:
+                    print(f"Debug: Error processing resin_recovery_time: {e}")
                     recovery_str = '不明'
             else:
                 recovery_str = '満タン！'
