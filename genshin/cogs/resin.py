@@ -38,6 +38,12 @@ class ResinCog(commands.Cog):
             return
         
         recovery_time = self.calculate_resin_time(current, target)
+        
+        # recovery_timeがNoneの場合のチェック（既に目標に達している場合）
+        if recovery_time is None:
+            await interaction.response.send_message(MessageConstants.RESIN_ALREADY_FULL, ephemeral=True)
+            return
+        
         resin_needed = target - current
         minutes_needed = resin_needed * ResinConstants.RESIN_RECOVERY_MINUTES
         
@@ -81,12 +87,34 @@ class ResinCog(commands.Cog):
         user_id = interaction.user.id
         recovery_time = self.calculate_resin_time(current, ResinConstants.MAX_RESIN)
         
+        # recovery_timeがNoneの場合（既に満タンの場合）のチェック
+        if recovery_time is None:
+            await interaction.response.send_message(MessageConstants.RESIN_ALREADY_FULL, ephemeral=True)
+            return
+        
         # 既存のタイマーをキャンセル
         if user_id in self.resin_timers:
             self.resin_timers[user_id].cancel()
         
         # 新しいタイマーを設定
         wait_seconds = (recovery_time - datetime.now()).total_seconds()
+        
+        # 負の値の場合（過去の時刻）は即座に通知
+        if wait_seconds <= 0:
+            await interaction.response.send_message(
+                '⚠️ 指定された樹脂数は既に回復済みです。',
+                ephemeral=True
+            )
+            return
+        
+        # 待機時間が長すぎる場合（24時間以上）は制限
+        max_wait_seconds = 24 * 60 * 60  # 24時間
+        if wait_seconds > max_wait_seconds:
+            await interaction.response.send_message(
+                '⚠️ 回復時間が24時間を超えています。より短い時間で設定してください。',
+                ephemeral=True
+            )
+            return
         
         async def reminder_task():
             await asyncio.sleep(wait_seconds)
