@@ -215,8 +215,16 @@ class HoyolabCog(commands.Cog):
             
             # 樹脂回復時間を計算
             if notes.current_resin < notes.max_resin:
-                recovery_time = datetime.now() + timedelta(seconds=notes.resin_recovery_time)
-                recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                try:
+                    # resin_recovery_timeが数値でない場合の対処
+                    recovery_seconds = int(notes.resin_recovery_time) if notes.resin_recovery_time else 0
+                    if recovery_seconds > 0:
+                        recovery_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                        recovery_str = recovery_time.strftime('%Y/%m/%d %H:%M')
+                    else:
+                        recovery_str = '計算中...'
+                except (ValueError, TypeError):
+                    recovery_str = '不明'
             else:
                 recovery_str = '満タン！'
 
@@ -262,11 +270,19 @@ class HoyolabCog(commands.Cog):
             # 参量物質変換器
             if hasattr(notes, 'transformer'):
                 if notes.transformer.obtained:
-                    if notes.transformer.recovery_time:
-                        transformer_time = datetime.now() + timedelta(seconds=notes.transformer.recovery_time)
-                        transformer_str = transformer_time.strftime('%H:%M')
-                    else:
-                        transformer_str = '使用可能'
+                    try:
+                        if notes.transformer.recovery_time:
+                            # recovery_timeが数値でない場合の対処
+                            recovery_seconds = int(notes.transformer.recovery_time)
+                            if recovery_seconds > 0:
+                                transformer_time = datetime.now() + timedelta(seconds=recovery_seconds)
+                                transformer_str = transformer_time.strftime('%H:%M')
+                            else:
+                                transformer_str = '使用可能'
+                        else:
+                            transformer_str = '使用可能'
+                    except (ValueError, TypeError):
+                        transformer_str = '不明'
                     
                     embed.add_field(
                         name='参量物質変換器',
