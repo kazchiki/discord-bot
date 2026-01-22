@@ -217,7 +217,6 @@ class HoyolabCog(commands.Cog):
                 recovery_str = notes.resin_recovery_time.strftime('%Y/%m/%d %H:%M')
             else:
                 recovery_str = '満タン！'
-                debug_info.append("処理: 既に満タン")
 
             embed = discord.Embed(
                 title='🔋 樹脂状況',
@@ -283,14 +282,6 @@ class HoyolabCog(commands.Cog):
 
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             embed.timestamp = discord.utils.utcnow()
-            
-            # デバッグ情報を追加（一時的）
-            if debug_info:
-                embed.add_field(
-                    name='🔧 デバッグ情報',
-                    value='\n'.join(debug_info),
-                    inline=False
-                )
             
             await interaction.followup.send(embed=embed)
 
