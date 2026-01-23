@@ -5,6 +5,7 @@
 """
 
 from datetime import datetime, timedelta
+from typing import Optional, Tuple
 from config.constants import ResinConstants
 
 
@@ -119,7 +120,3 @@ class ResinService:
             float: パーセンテージ（0-100）
         """
         return (current_resin / ResinConstants.MAX_RESIN) * 100
-
-
-# 型ヒント用のインポート
-from typing import Optional, Tuple

@@ -5,7 +5,7 @@
 """
 
 import random
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Optional
 
 
 class TeamService:
@@ -166,6 +166,3 @@ class TeamService:
             return False, f"チーム編成には最低{min_chars}人のキャラクターが必要です（現在: {len(characters)}人）"
         
         return True, None
-
-
-from typing import Optional
