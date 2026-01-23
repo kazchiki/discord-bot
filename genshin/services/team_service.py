@@ -11,19 +11,20 @@ from typing import List, Tuple, Set, Optional
 class TeamService:
     """チーム編成サービスクラス"""
     
-    # キャラクターの役割定義
+    # キャラクターの役割定義(GameWith評価)
     CHARACTER_ROLES = {
         'dps': [
-            'Hu Tao', 'Ganyu', 'Raiden Shogun', 'Tartaglia', 'Arataki Itto', 'Kamisato Ayaka',
-            'Yoimiya', 'Eula', 'Xiao', 'Neuvillette', 'Arlecchino', 'Sethos', 'Gaming',
-            'Wriothesley', 'Wanderer', 'Alhaitham', 'Navia', 'Clorinde', 'Yanfei', 'Ningguang',
-            'Diluc', 'Klee', 'Cyno', 'Tighnari', 'Kinich', 'Chasca',
-            'Mualani', 'Mavuika', 'Keqing', 'Lyney',
-            'Durin', 'Manekina', 'Manekin', 'Columbina', 'Skirk',
-            'Yumemizuki Mizuki', 'Neferiti', 'Flins'
+            'Venti', 'Klee', 'Eula', 'Diluc',
+            'Gaming', 'Hu Tao', 'Ganyu', 'Tartaglia', 'Xiao', 'Ningguang', 'Keqing', 'Yanfei',
+            'Raiden Shogun', 'Kamisato Ayato', 'Kamisato Ayaka', 'Arataki Itto', 'Yoimiya', 'Yumemizuki Mizuki',
+            'Alhaitham', 'Wanderer', 'Sethos', 'Cyno', 'Tighnari',
+            'Arlecchino', 'Neuvillette', 'Lyney', 'Navia', 'Clorinde', 'Wriothesley', 
+            'Mavuika', 'Skirk', 'Mualani', 'Varesa', 'Kinich', 'Chasca',
+            'Neferiti', 'Flins', 'Columbina',
+            'Manekina', 'Manekin',
         ],
         'sub_dps': [
-            'Xingqiu', 'Xiangling', 'Fischl', 'Beidou', 'Rosaria', 'Chongyun',
+            'Durin', 'Xingqiu', 'Xiangling', 'Fischl', 'Beidou', 'Rosaria', 'Chongyun',
             'Yae Miko', 'Yelan', 'Albedo', 'Furina', 'Emilie', 'Shikanoin Heizou',
             'Xinyan', 'Kachina', 'Nilou', 'Chiori', 'Dori', 'Ifa', 'Noelle',
             'Aino', 'Dahlia', 'Jahoda', 'Lauma', 'Ineffa',
@@ -32,7 +33,7 @@ class TeamService:
             'Bennett', 'Venti', 'Kaedehara Kazuha', 'Sucrose',
             'Zhongli', 'Nahida', 'Faruzan', 'Layla', 'Yun Jin', 'Gorou',
             'Kujou Sara', 'Thoma', 'Candace', 'Kaveh', 'Lynette',
-            'Freminet', 'Charlotte', 'Chevreuse', 'Ororon', 'Mika',
+            'Freminet', 'Chevreuse', 'Ororon', 'Mika',
             'Lan Yan', 'Kirara', 'Xilonen', 'Citlali', 'Xianyun', 'Kuki Shinobu', 'Iansan'
         ],
         'healer': [
