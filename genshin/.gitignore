@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 環境変数
+.env
+.venv
+env/
+venv/
+
+# データベース
+*.db
+*.sqlite
+*.sqlite3
+
+# 暗号化キー
+encryption.key
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ログ
+*.log
+
+# 旧構造（移行後削除予定）
+cogs_backup/
