@@ -79,5 +79,5 @@ class TeamController(commands.Cog):
 
 async def setup(bot: commands.Bot):
     """Cogをセットアップ"""
-    database = Database()
-    await bot.add_cog(TeamController(bot, database))
+    # bot.databaseはbot.pyで初期化済み
+    await bot.add_cog(TeamController(bot, bot.database))
