@@ -21,15 +21,26 @@ async def on_ready():
     except Exception as e:
         print(f'コマンドの同期に失敗しました: {e}')
 
-# コグ（拡張機能）を読み込み
+# コントローラー（拡張機能）を読み込み
 async def load_extensions():
-    for filename in os.listdir('./cogs'):
-        if filename.endswith('.py'):
+    """Controllersフォルダから全てのコントローラーをロード"""
+    controllers_dir = './controllers'
+    
+    if not os.path.exists(controllers_dir):
+        print(f'エラー: {controllers_dir} フォルダが見つかりません')
+        return
+    
+    loaded_count = 0
+    for filename in os.listdir(controllers_dir):
+        if filename.endswith('.py') and not filename.startswith('_'):
             try:
-                await bot.load_extension(f'cogs.{filename[:-3]}')
-                print(f'{filename} を読み込みました')
+                await bot.load_extension(f'controllers.{filename[:-3]}')
+                print(f'✅ {filename} を読み込みました')
+                loaded_count += 1
             except Exception as e:
-                print(f'{filename} の読み込みに失敗しました: {e}')
+                print(f'❌ {filename} の読み込みに失敗しました: {e}')
+    
+    print(f'\n合計 {loaded_count} 個のコントローラーを読み込みました')
 
 async def main():
     async with bot:

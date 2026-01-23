@@ -34,6 +34,17 @@
 - **樹脂計算機**: `/resin` - 樹脂の回復時間を手動計算
 - **樹脂リマインダー**: `/resin_reminder` - 指定時間後にDM通知
 
+## プロジェクト構造
+
+このBotはMVCパターンに近い設計を採用しています：
+
+- **Model層** (`models/`) - データベース操作とデータ構造
+- **Service層** (`services/`) - ビジネスロジック（API連携、計算など）
+- **View層** (`views/`) - Discord表示（Embed生成、フォーマット）
+- **Controller層** (`controllers/`) - コマンド処理（Discord Cogs）
+
+詳細は [ARCHITECTURE.md](./ARCHITECTURE.md) を参照してください。
+
 ## セットアップ
 
 ### 1. 必要なパッケージをインストール
