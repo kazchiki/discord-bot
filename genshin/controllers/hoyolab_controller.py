@@ -239,5 +239,5 @@ class HoyolabController(commands.Cog):
 
 async def setup(bot: commands.Bot):
     """Cogをセットアップ"""
-    database = Database()
-    await bot.add_cog(HoyolabController(bot, database))
+    # bot.databaseはbot.pyで初期化済み
+    await bot.add_cog(HoyolabController(bot, bot.database))

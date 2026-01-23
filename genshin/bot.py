@@ -3,6 +3,10 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 import asyncio
+import sys
+
+# genshinディレクトリをPythonパスに追加
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 環境変数を読み込み
 load_dotenv()
@@ -11,6 +15,10 @@ load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+# データベースインスタンスを1つ作成（全Controllerで共有）
+from models.database import Database
+database = Database()
 
 @bot.event
 async def on_ready():
@@ -34,11 +42,15 @@ async def load_extensions():
     for filename in os.listdir(controllers_dir):
         if filename.endswith('.py') and not filename.startswith('_'):
             try:
+                # データベースインスタンスをbotに保存（Controllerから参照可能にする）
+                bot.database = database
                 await bot.load_extension(f'controllers.{filename[:-3]}')
                 print(f'✅ {filename} を読み込みました')
                 loaded_count += 1
             except Exception as e:
                 print(f'❌ {filename} の読み込みに失敗しました: {e}')
+                import traceback
+                traceback.print_exc()
     
     print(f'\n合計 {loaded_count} 個のコントローラーを読み込みました')
 
