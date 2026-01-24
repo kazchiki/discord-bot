@@ -142,7 +142,7 @@ class CharacterNameMapping:
         'Nilou': 'ニィロウ',
         'Alhaitham': 'アルハイゼン',
         'Cyno': 'セノ',
-        'Wanderer': '放浪者',
+        'Wanderer': '放浪者(かさっち)',
 
         # フォンテーヌ
         'Furina': 'フリーナ',
@@ -153,7 +153,7 @@ class CharacterNameMapping:
         'Clorinde': 'クロリンデ',
         'Sigewinne': 'シグウィン',
         'Emilie': 'エミリエ',
-        'Escofier': 'エスコフィエ',
+        'Escoffier': 'エスコフィエ',
 
         # ナタ
         'Mavuika': 'マーヴィカ',
@@ -167,7 +167,7 @@ class CharacterNameMapping:
         # ナド・クライ
         'Columbina': 'コロンビーナ',
         'Ineffa': 'イネファ',
-        'Neferiti': 'ネフェル',
+        'Nefer': 'ネフェル',
         'Flins': 'フリンズ',
         'Lauma': 'ラウマ',
 
@@ -183,15 +183,16 @@ class CharacterNameMapping:
         # 星4キャラクター
         # モンド
         'Amber': 'アンバー',
-        'Bennett': 'ベネット',
-        'Lisa': 'リサ',
         'Kaeya': 'ガイア',
+        'Lisa': 'リサ',
+        'Barbara': 'バーバラ',
         'Razor': 'レザー',
         'Fischl': 'フィッシュル',
+        'Bennett': 'ベネット',
+        'Noelle': 'ノエル',
         'Rosaria': 'ロサリア',
         'Diona': 'ディオナ',
         'Sucrose': 'スクロース',
-        'Barbara': 'バーバラ',
         'Mika': 'ミカ',
         'Dahlia': 'ダリア',
 
@@ -199,14 +200,14 @@ class CharacterNameMapping:
         'Xingqiu': '行秋',
         'Xiangling': '香菱',
         'Chongyun': '重雲',
-        'Yanfei': '煙緋(えんひ)',
-        'Ningguang': '凝光(ぎょうこう)',
-        'Xinyan': '辛炎(しんえん)',
+        'Yanfei': '煙緋',
+        'Ningguang': '凝光',
+        'Xinyan': '辛炎',
         'Beidou': '北斗',
         'Yun Jin': '雲菫',
-        'Yaoyao': 'ヨーヨ',
-        'Gaming': '嘉明(がみん)',
-        'Lan Yan': '藍硯(らんやん)',
+        'Yaoyao': 'ヨォーヨ',
+        'Gaming': '嘉明',
+        'Lan Yan': '藍硯',
 
         # 稲妻
         'Thoma': 'トーマ',
@@ -214,7 +215,7 @@ class CharacterNameMapping:
         'Sayu': '早柚',
         'Kuki Shinobu': '久岐忍',
         'Gorou': 'ゴロー',
-        'Kirara': '綺良々(きらら)',
+        'Kirara': '綺良々',
         'Shikanoin Heizou': '鹿野院平蔵',
 
         # スメール

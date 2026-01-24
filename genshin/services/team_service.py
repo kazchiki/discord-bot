@@ -14,19 +14,19 @@ class TeamService:
     # キャラクターの役割定義(GameWith評価)
     CHARACTER_ROLES = {
         'dps': [
-            'Venti', 'Klee', 'Eula', 'Diluc',
+            'Venti', 'Klee', 'Eula', 'Diluc', 'Noelle',
             'Gaming', 'Hu Tao', 'Ganyu', 'Tartaglia', 'Xiao', 'Ningguang', 'Keqing', 'Yanfei',
             'Raiden Shogun', 'Kamisato Ayato', 'Kamisato Ayaka', 'Arataki Itto', 'Yoimiya', 'Yumemizuki Mizuki',
             'Alhaitham', 'Wanderer', 'Sethos', 'Cyno', 'Tighnari',
-            'Arlecchino', 'Neuvillette', 'Lyney', 'Navia', 'Clorinde', 'Wriothesley', 
+            'Arlecchino', 'Neuvillette', 'Lyney', 'Navia', 'Clorinde', 'Wriothesley', 'Traveler',
             'Mavuika', 'Skirk', 'Mualani', 'Varesa', 'Kinich', 'Chasca',
-            'Neferiti', 'Flins', 'Columbina',
+            'Nefer', 'Flins', 'Columbina',
             'Manekina', 'Manekin',
         ],
         'sub_dps': [
             'Durin', 'Xingqiu', 'Xiangling', 'Fischl', 'Beidou', 'Rosaria', 'Chongyun',
             'Yae Miko', 'Yelan', 'Albedo', 'Furina', 'Emilie', 'Shikanoin Heizou',
-            'Xinyan', 'Kachina', 'Nilou', 'Chiori', 'Dori', 'Ifa', 'Noelle',
+            'Xinyan', 'Kachina', 'Nilou', 'Chiori', 'Dori', 'Ifa',
             'Aino', 'Dahlia', 'Jahoda', 'Lauma', 'Ineffa',
         ],
         'support': [
