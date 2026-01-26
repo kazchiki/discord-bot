@@ -41,6 +41,12 @@ class HoyolabController(commands.Cog):
         """Bot起動完了を待つ"""
         await self.bot.wait_until_ready()
     
+    @app_commands.command(name='help', description='Botの使い方とコマンド一覧を表示します')
+    async def help(self, interaction: discord.Interaction):
+        """ヘルプコマンド"""
+        embed = EmbedBuilder.help_embed()
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
     @app_commands.command(name='set_cookie', description='HoYoLABのクッキーを設定します（DMで送信してください）')
     @app_commands.describe(cookie='HoYoLABのクッキー（ltuid_v2とltoken_v2）')
     async def set_cookie(self, interaction: discord.Interaction, cookie: str):
@@ -95,7 +101,7 @@ class HoyolabController(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name='status', description='現在のゲーム内状況を取得します')
+    @app_commands.command(name='user_status', description='現在のゲーム内状況を取得します')
     async def status(self, interaction: discord.Interaction):
         """ゲーム内状況表示コマンド"""
         user_cookies = self.database.get_user_cookies(interaction.user.id)
@@ -110,11 +116,11 @@ class HoyolabController(commands.Cog):
         try:
             await interaction.response.defer()
             
-            # 樹脂情報を取得
+            # ユーザー情報を取得
             notes = await self.hoyolab_service.get_genshin_notes(user_cookies)
             
             # Embedを生成して送信
-            embed = EmbedBuilder.resin_status_embed(notes)
+            embed = EmbedBuilder.user_status_embed(notes)
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             
             await interaction.followup.send(embed=embed)

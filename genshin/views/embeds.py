@@ -50,15 +50,15 @@ class EmbedBuilder:
             color=ColorConstants.WARNING_COLOR
         )
     
-    # === 樹脂関連のEmbed ===
+    # === ユーザー関連のEmbed ===
     
     @staticmethod
-    def resin_status_embed(notes) -> discord.Embed:
-        """樹脂状況のEmbed"""
+    def user_status_embed(notes) -> discord.Embed:
+        """ユーザー状況のEmbed"""
         from datetime import timedelta
         
         embed = discord.Embed(
-            title='🔋 樹脂状況',
+            title='🔋 ユーザー状況',
             color=ColorConstants.INFO_COLOR
         )
         
@@ -101,6 +101,14 @@ class EmbedBuilder:
                 value=f'{notes.current_realm_currency}/{notes.max_realm_currency}',
                 inline=True
             )
+            
+            # 洞天宝銭の回復時間
+            if hasattr(notes, 'realm_currency_recovery_time') and notes.realm_currency_recovery_time:
+                embed.add_field(
+                    name='洞天宝銭満タンまで',
+                    value=notes.realm_currency_recovery_time.strftime('%Y/%m/%d %H:%M'),
+                    inline=True
+                )
         
         # 参量物質変換器
         if hasattr(notes, 'transformer') and notes.transformer.obtained:
@@ -124,52 +132,6 @@ class EmbedBuilder:
             )
         
         embed.timestamp = discord.utils.utcnow()
-        return embed
-    
-    @staticmethod
-    def resin_calculation_embed(current: int, target: int, recovery_time: datetime) -> discord.Embed:
-        """樹脂回復計算のEmbed"""
-        from config.constants import ResinConstants
-        
-        resin_needed = target - current
-        minutes_needed = resin_needed * ResinConstants.RESIN_RECOVERY_MINUTES
-        
-        embed = discord.Embed(
-            title='樹脂回復計算',
-            color=ColorConstants.INFO_COLOR
-        )
-        
-        embed.add_field(
-            name='現在の樹脂',
-            value=f'{current}/{ResinConstants.MAX_RESIN}',
-            inline=True
-        )
-        embed.add_field(
-            name='目標樹脂',
-            value=f'{target}/{ResinConstants.MAX_RESIN}',
-            inline=True
-        )
-        embed.add_field(
-            name='必要な樹脂',
-            value=f'{resin_needed}',
-            inline=True
-        )
-        
-        embed.add_field(
-            name='回復時間',
-            value=f'{minutes_needed // 60}時間 {minutes_needed % 60}分',
-            inline=True
-        )
-        
-        embed.add_field(
-            name='完了予定時刻',
-            value=recovery_time.strftime('%Y/%m/%d %H:%M'),
-            inline=True
-        )
-        
-        embed.set_footer(text='樹脂は8分で1回復します')
-        embed.timestamp = discord.utils.utcnow()
-        
         return embed
     
     @staticmethod
@@ -232,6 +194,102 @@ class EmbedBuilder:
                 value='\n'.join(account_info),
                 inline=False
             )
+        
+        return embed
+    
+    @staticmethod
+    def help_embed() -> discord.Embed:
+        """ヘルプのEmbed"""
+        embed = discord.Embed(
+            title='📖 原神Discord Bot ヘルプ',
+            description='HoYoLAB APIと連携して原神のゲーム情報を取得できるBotです。',
+            color=ColorConstants.INFO_COLOR
+        )
+        
+        # 初期設定
+        embed.add_field(
+            name='🔧 初期設定（必須）',
+            value=(
+                '**`/set_cookie`** - HoYoLABクッキーを設定\n'
+                '└ DMでのみ使用可能（セキュリティのため）\n'
+                '└ 設定後、すべての機能が利用可能になります\n'
+            ),
+            inline=False
+        )
+        
+        # クッキー取得方法
+        embed.add_field(
+            name='🍪 クッキーの取得方法',
+            value=(
+                '**PC（Chrome/Edge）の場合:**\n'
+                '1. [HoYoLAB](https://www.hoyolab.com/)にログイン\n'
+                '2. `F12`で開発者ツールを開く\n'
+                '3. 「Application」→「Cookies」→「https://www.hoyolab.com」\n'
+                '4. `ltuid_v2`と`ltoken_v2`をコピー\n'
+                '5. DMで `/set_cookie cookie: ltuid_v2=...` と入力'
+            ),
+            inline=False
+        )
+        
+        # ゲーム情報コマンド
+        embed.add_field(
+            name='🎮 ゲーム情報',
+            value=(
+                '**`/user_status`** - 現在のゲーム状況\n'
+                '└ 樹脂、デイリー任務、週ボス、洞天宝銭など\n\n'
+                '**`/characters`** - 所持キャラクター一覧\n'
+                '└ 元素別に分類して表示'
+            ),
+            inline=False
+        )
+        
+        # チーム編成
+        embed.add_field(
+            name='⚔️ チーム編成',
+            value=(
+                '**`/team_generate`** - おすすめチーム編成生成\n'
+                '└ 所持キャラからバランスの良いチームを自動作成\n'
+                '└ 気に入らなければ何度でも生成可能'
+            ),
+            inline=False
+        )
+        
+        # 通知機能
+        embed.add_field(
+            name='🔔 通知機能',
+            value=(
+                '**`/resin_notification enabled: [有効/無効] threshold: [閾値]`**\n'
+                '└ 樹脂が指定値に達したらDMで通知\n'
+                '└ 30分ごとに自動チェック\n'
+                '└ 例: `/resin_notification enabled:有効 threshold:180`'
+            ),
+            inline=False
+        )
+        
+        # その他
+        embed.add_field(
+            name='⚙️ その他',
+            value=(
+                '**`/delete_cookie`** - 保存したクッキーを削除\n'
+                '**`/help`** - このヘルプを表示'
+            ),
+            inline=False
+        )
+        
+        # 注意事項
+        embed.add_field(
+            name='⚠️ 重要な注意点',
+            value=(
+                '• クッキーは暗号化して安全に保存されます\n'
+                '• `/set_cookie`は必ずDMで実行してください\n'
+                '• クッキーは定期的に更新が必要な場合があります\n'
+                '• 他人とクッキーを共有しないでください'
+            ),
+            inline=False
+        )
+        
+        embed.set_footer(text='困ったときは /help を実行してください')
+        embed.timestamp = discord.utils.utcnow()
         
         return embed
     
