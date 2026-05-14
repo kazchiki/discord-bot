@@ -163,10 +163,12 @@ class HoyolabController(commands.Cog):
             chars_by_element = self.hoyolab_service.classify_characters_by_element(characters)
             
             # Embedを生成して送信
+            name_mapping = self.database.get_all_japanese_names()
             embed = EmbedBuilder.characters_list_embed(
                 characters=characters,
                 chars_by_element=chars_by_element,
-                element_order=ElementConstants.ELEMENT_ORDER
+                element_order=ElementConstants.ELEMENT_ORDER,
+                name_mapping=name_mapping
             )
             embed.set_footer(text=f'HoYoLAB APIより取得 | UID: {interaction.user.id}')
             

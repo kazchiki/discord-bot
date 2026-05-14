@@ -17,7 +17,6 @@ genshin/
 ├── services/                   # Service層 - ビジネスロジック
 │   ├── __init__.py
 │   ├── hoyolab_service.py     # HoYoLAB API連携
-│   ├── resin_service.py       # 樹脂計算ロジック
 │   ├── team_service.py        # チーム編成ロジック
 │   └── notification_service.py # 通知ロジック
 ├── views/                      # View層 - Discord表示
@@ -27,7 +26,6 @@ genshin/
 └── controllers/                # Controller層 - コマンド処理
     ├── __init__.py
     ├── hoyolab_controller.py  # HoYoLAB関連コマンド
-    ├── resin_controller.py    # 樹脂計算コマンド
     └── team_controller.py     # チーム編成コマンド
 ```
 
@@ -59,11 +57,6 @@ genshin/
   - クッキーの検証
   - キャラクター情報の取得
   - 樹脂状況の取得
-
-- `resin_service.py`: 樹脂計算ロジック
-  - 回復時間の計算
-  - バリデーション
-  - ビジネスルールの適用
 
 - `team_service.py`: チーム編成アルゴリズム
   - キャラクターの役割分類
@@ -105,13 +98,11 @@ genshin/
 
 - `hoyolab_controller.py`: HoYoLAB関連コマンド
   - `/set_cookie` - クッキー設定
-  - `/status` - 樹脂状況表示
+  - `/user_status` - ゲーム内状況表示
   - `/characters` - キャラ一覧
   - `/resin_notification` - 通知設定
-
-- `resin_controller.py`: 樹脂計算コマンド
-  - `/resin` - 回復時間計算
-  - `/resin_reminder` - リマインダー設定
+  - `/delete_cookie` - クッキー削除
+  - `/help` - ヘルプ表示
 
 - `team_controller.py`: チーム編成コマンド
   - `/team_generator` - チーム生成

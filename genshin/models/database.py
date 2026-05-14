@@ -72,7 +72,37 @@ class Database:
         except sqlite3.OperationalError:
             cursor.execute("ALTER TABLE user_settings ADD COLUMN resin_threshold INTEGER DEFAULT 200")
             print("データベースを更新しました: resin_threshold カラムを追加")
-        
+
+        # characters テーブル
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS characters (
+                name          TEXT PRIMARY KEY,
+                japanese_name TEXT NOT NULL,
+                element       TEXT,
+                rarity        INTEGER,
+                region        TEXT,
+                birthday      TEXT,
+                release_date  TEXT
+            )
+        ''')
+
+        # 既存DBへのカラム追加（互換性のため）
+        for col, definition in [('birthday', 'TEXT'), ('release_date', 'TEXT')]:
+            try:
+                cursor.execute(f'SELECT {col} FROM characters LIMIT 1')
+            except sqlite3.OperationalError:
+                cursor.execute(f'ALTER TABLE characters ADD COLUMN {col} {definition}')
+                print(f'データベースを更新しました: characters.{col} カラムを追加')
+
+        # character_roles テーブル
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS character_roles (
+                character_name TEXT NOT NULL REFERENCES characters(name),
+                role           TEXT NOT NULL CHECK (role IN ('dps', 'sub_dps', 'support', 'healer', 'shielder')),
+                PRIMARY KEY (character_name, role)
+            )
+        ''')
+
         conn.commit()
         conn.close()
     
@@ -285,6 +315,82 @@ class Database:
             print(f"ユーザー一覧取得エラー: {e}")
             return []
     
+    # === キャラクター関連のメソッド ===
+
+    def get_all_japanese_names(self) -> Dict[str, str]:
+        """全キャラの英語名→日本語名マッピングを取得"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT name, japanese_name FROM characters')
+            result = cursor.fetchall()
+            conn.close()
+            return {row[0]: row[1] for row in result}
+        except Exception as e:
+            print(f"キャラ名一覧取得エラー: {e}")
+            return {}
+
+    def get_character_roles(self, name: str) -> List[str]:
+        """指定キャラのロール一覧を取得"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT role FROM character_roles WHERE character_name = ?', (name,))
+            result = cursor.fetchall()
+            conn.close()
+            return [row[0] for row in result] if result else ['other']
+        except Exception as e:
+            print(f"キャラロール取得エラー: {e}")
+            return ['other']
+
+    def get_all_character_roles(self) -> Dict[str, List[str]]:
+        """全キャラのロールマッピングを取得 {name: [roles]}"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT character_name, role FROM character_roles')
+            result = cursor.fetchall()
+            conn.close()
+            roles_map: Dict[str, List[str]] = {}
+            for name, role in result:
+                roles_map.setdefault(name, []).append(role)
+            return roles_map
+        except Exception as e:
+            print(f"キャラロール一覧取得エラー: {e}")
+            return {}
+
+    def upsert_character(self, name: str, japanese_name: str, element: str = None, rarity: int = None, region: str = None, birthday: str = None, release_date: str = None) -> bool:
+        """キャラクター情報を登録・更新"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO characters (name, japanese_name, element, rarity, region, birthday, release_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (name, japanese_name, element, rarity, region, birthday, release_date))
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"キャラ保存エラー: {e}")
+            return False
+
+    def upsert_character_role(self, character_name: str, role: str) -> bool:
+        """キャラクターのロールを登録"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR IGNORE INTO character_roles (character_name, role)
+                VALUES (?, ?)
+            ''', (character_name, role))
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"キャラロール保存エラー: {e}")
+            return False
+
     # === ユーザーデータの完全削除 ===
     
     def delete_all_user_data(self, user_id: int) -> bool:

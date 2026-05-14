@@ -247,7 +247,7 @@ class EmbedBuilder:
         embed.add_field(
             name='⚔️ チーム編成',
             value=(
-                '**`/team_generate`** - おすすめチーム編成生成\n'
+                '**`/team_generator`** - おすすめチーム編成生成\n'
                 '└ 所持キャラからバランスの良いチームを自動作成\n'
                 '└ 気に入らなければ何度でも生成可能'
             ),
@@ -296,60 +296,59 @@ class EmbedBuilder:
     # === キャラクター関連のEmbed ===
     
     @staticmethod
-    def characters_list_embed(characters: list, chars_by_element: dict, element_order: list) -> discord.Embed:
+    def characters_list_embed(characters: list, chars_by_element: dict, element_order: list, name_mapping: dict = None) -> discord.Embed:
         """キャラクター一覧のEmbed"""
-        from config.constants import CharacterNameMapping
-        
+        name_mapping = name_mapping or {}
+
         embed = discord.Embed(
             title='所持キャラクター',
             description=f'合計 {len(characters)}体',
             color=ColorConstants.FIVE_STAR_COLOR
         )
-        
+
         element_names = ElementConstants.ELEMENT_NAMES
-        
+
         for element in element_order:
             element_chars = chars_by_element.get(element, [])
             if not element_chars:
                 continue
-            
-            # レアリティとレベルでソート
+
             sorted_chars = sorted(element_chars, key=lambda x: (x.rarity, x.level), reverse=True)
-            
+
             char_list = []
-            for char in sorted_chars[:20]:  # 各元素最大20体
-                jp_name = CharacterNameMapping.NAMES.get(char.name, char.name)
+            for char in sorted_chars[:20]:
+                jp_name = name_mapping.get(char.name, char.name)
                 element_name = element_names[element]
                 char_list.append(f'{jp_name} {element_name} Lv.{char.level}')
-            
+
             if char_list:
                 embed.add_field(
                     name=f'{element_names[element]} ({len(element_chars)}体)',
                     value='\n'.join(char_list),
                     inline=False
                 )
-        
+
         embed.set_footer(text='HoYoLAB APIより取得')
         embed.timestamp = discord.utils.utcnow()
-        
+
         return embed
     
     # === チーム編成関連のEmbed ===
     
     @staticmethod
-    def team_generator_embed(team: list, total_chars: int) -> discord.Embed:
+    def team_generator_embed(team: list, total_chars: int, name_mapping: dict = None) -> discord.Embed:
         """チーム編成のEmbed"""
-        from config.constants import CharacterNameMapping
-        
+        name_mapping = name_mapping or {}
+
         embed = discord.Embed(
             title='🎯 おすすめチーム編成',
             description=f'あなたの所持キャラ（{total_chars}人）から生成されたチーム編成です',
             color=ColorConstants.FIVE_STAR_COLOR
         )
-        
+
         for i, (role, char) in enumerate(team, 1):
             element_name = ElementConstants.ELEMENT_NAMES.get(char.element, '不明')
-            jp_name = CharacterNameMapping.NAMES.get(char.name, char.name)
+            jp_name = name_mapping.get(char.name, char.name)
             embed.add_field(
                 name=f'{i}. {role}',
                 value=f'{jp_name} {element_name}\nLv.{char.level}',

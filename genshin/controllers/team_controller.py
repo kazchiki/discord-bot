@@ -21,7 +21,7 @@ class TeamController(commands.Cog):
         self.bot = bot
         self.database = database
         self.hoyolab_service = HoyolabService()
-        self.team_service = TeamService()
+        self.team_service = TeamService(database)
     
     @app_commands.command(name='team_generator', description='所持キャラからランダムなチーム編成を提案します')
     async def team_generator(self, interaction: discord.Interaction):
@@ -62,7 +62,8 @@ class TeamController(commands.Cog):
                 return
             
             # Embedを生成して送信
-            embed = EmbedBuilder.team_generator_embed(team=team, total_chars=len(owned_chars))
+            name_mapping = self.database.get_all_japanese_names()
+            embed = EmbedBuilder.team_generator_embed(team=team, total_chars=len(owned_chars), name_mapping=name_mapping)
             await interaction.followup.send(embed=embed)
         
         except genshin.errors.InvalidCookies:

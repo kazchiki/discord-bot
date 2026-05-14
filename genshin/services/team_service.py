@@ -10,55 +10,12 @@ from typing import List, Tuple, Set, Optional
 
 class TeamService:
     """チーム編成サービスクラス"""
-    
-    # キャラクターの役割定義(GameWith評価)
-    CHARACTER_ROLES = {
-        'dps': [
-            'Venti', 'Klee', 'Eula', 'Diluc', 'Noelle',
-            'Gaming', 'Hu Tao', 'Ganyu', 'Tartaglia', 'Xiao', 'Ningguang', 'Keqing', 'Yanfei',
-            'Raiden Shogun', 'Kamisato Ayato', 'Kamisato Ayaka', 'Arataki Itto', 'Yoimiya', 'Yumemizuki Mizuki',
-            'Alhaitham', 'Wanderer', 'Sethos', 'Cyno', 'Tighnari',
-            'Arlecchino', 'Neuvillette', 'Lyney', 'Navia', 'Clorinde', 'Wriothesley', 'Traveler',
-            'Mavuika', 'Skirk', 'Mualani', 'Varesa', 'Kinich', 'Chasca',
-            'Nefer', 'Flins', 'Columbina',
-            'Manekina', 'Manekin',
-        ],
-        'sub_dps': [
-            'Durin', 'Xingqiu', 'Xiangling', 'Fischl', 'Beidou', 'Rosaria', 'Chongyun',
-            'Yae Miko', 'Yelan', 'Albedo', 'Furina', 'Emilie', 'Shikanoin Heizou',
-            'Xinyan', 'Kachina', 'Nilou', 'Chiori', 'Dori', 'Ifa',
-            'Aino', 'Dahlia', 'Jahoda', 'Lauma', 'Ineffa',
-        ],
-        'support': [
-            'Bennett', 'Venti', 'Kaedehara Kazuha', 'Sucrose',
-            'Zhongli', 'Nahida', 'Faruzan', 'Layla', 'Yun Jin', 'Gorou',
-            'Kujou Sara', 'Thoma', 'Candace', 'Kaveh', 'Lynette',
-            'Freminet', 'Chevreuse', 'Ororon', 'Mika',
-            'Lan Yan', 'Kirara', 'Xilonen', 'Citlali', 'Xianyun', 'Kuki Shinobu', 'Iansan'
-        ],
-        'healer': [
-            'Diona', 'Jean', 'Sangonomiya Kokomi', 'Barbara',
-            'Qiqi', 'Sayu', 'Yaoyao', 'Baizhu',
-            'Charlotte', 'Sigewinne'
-        ]
-    }
-    
-    @staticmethod
-    def classify_character_role(char_name: str) -> List[str]:
-        """
-        キャラクターの役割を判定
-        
-        Args:
-            char_name: キャラクター名（英語）
-            
-        Returns:
-            List[str]: 役割のリスト
-        """
-        roles = []
-        for role, characters in TeamService.CHARACTER_ROLES.items():
-            if char_name in characters:
-                roles.append(role)
-        return roles if roles else ['other']
+
+    def __init__(self, database):
+        self.database = database
+
+    def classify_character_role(self, char_name: str) -> List[str]:
+        return self.database.get_character_roles(char_name)
     
     @staticmethod
     def filter_owned_characters(characters: List, min_level: int = 1) -> List:
@@ -74,27 +31,19 @@ class TeamService:
         """
         return [c for c in characters if c.level > min_level]
     
-    @staticmethod
-    def create_team(owned_characters: List) -> List[Tuple[str, any]]:
-        """
-        所持キャラからランダムなチームを編成
-        
-        Args:
-            owned_characters: 所持キャラクターのリスト
-            
-        Returns:
-            List[Tuple[str, any]]: (役割名, キャラクター)のタプルのリスト
-        """
-        # 役割別に分類
+    def create_team(self, owned_characters: List) -> List[Tuple[str, any]]:
+        # 全キャラのロールをまとめて取得（N+1クエリ回避）
+        roles_map = self.database.get_all_character_roles()
+
         char_by_role = {
             'dps': [],
             'sub_dps': [],
             'support': [],
             'healer': []
         }
-        
+
         for char in owned_characters:
-            roles = TeamService.classify_character_role(char.name)
+            roles = roles_map.get(char.name, ['other'])
             for role in roles:
                 if role in char_by_role:
                     char_by_role[role].append(char)

@@ -6,7 +6,7 @@ APIとのやり取りやデータ取得を担当
 
 import genshin
 from typing import Optional, List, Tuple
-from config.constants import CharacterNameMapping, ElementConstants
+from config.constants import ElementConstants
 
 
 class HoyolabService:
@@ -126,19 +126,6 @@ class HoyolabService:
         client = genshin.Client(cookies)
         accounts = await client.get_game_accounts()
         return [acc for acc in accounts if acc.game == genshin.Game.GENSHIN]
-    
-    @staticmethod
-    def get_japanese_name(english_name: str) -> str:
-        """
-        英語キャラ名を日本語名に変換
-        
-        Args:
-            english_name: 英語名
-            
-        Returns:
-            str: 日本語名
-        """
-        return CharacterNameMapping.NAMES.get(english_name, english_name)
     
     @staticmethod
     def classify_characters_by_element(characters: List) -> dict:
